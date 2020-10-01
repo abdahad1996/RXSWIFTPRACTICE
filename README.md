@@ -174,3 +174,93 @@
 	Official suggestion is to always use .disposed(by: disposeBag) even though that’s not necessary for simple bindin
 ![alt text](https://miro.medium.com/max/700/1*HisVmxkV5RsjiXsN81L9vQ.png)
  
+ # Replay Subject
+
+	Replay subjects will temporarily cache, or buffer, the latest elements they emit, up to a specified size of your choosing. Let’s say if buffer = 2 and observable emitted n elements and new observer try to observe this observable it will receive n-1,n,n+1,n+2 and so on elements and will not receive 0 to n-2 elements since its replay the elements upto the buffer specified
+	
+	Keep in mind, when using a replay subject, that this buffer is held in memory. You can definitely shoot yourself in the foot, here, such as if you set a large buffer size for a replay subject of some type whose instances each take up a lot of memory, like images.
+	
+	As shown in Figure 1 since Replay Subject is one of the type of Subject so it can acts both as Observable and Observer. Things to be noted
+	Created an observable Using ReplaySubject and the requirement of this type of subject is that we need to specify buffer size
+	Binded Subject 1 (act as observer) with the above observable, Now Subject 1 will receive new element emitted by the observable after the subscription
+	Added two elements to the observable sequence now it will send data to all the observers subscribed to it and in our case Subject 1 will get data
+	Binded Subject 2 (act as observer) with the above observable, Subject 2 observer will receive previous data upto the buffer size as shown in Figure 1
+	Called Observable complete event which will mark the current subscribers as done and terminated and as shown in Figure 3 Subject 1 and Subject 2 completed and disposed event is called
+	What if we added new subscriber after subject has emitted its completed event. In ReplaySubject new subscriber will receive previous nextevent upto the buffer size and completed event as well
+![alt text](https://miro.medium.com/max/700/1*aCOx3-Tta0WYNRk5WBcl2A.png)
+
+# Publish Relay Subject
+	A PublishRelay wraps a PublishSubject.What makes it different from PublishSubject is that it never terminated means you can’t call completed,error or dispose method on observable subject
+	As shown in Figure 2 it is working as Publish Subject but their are few things to be considered
+	There is no interface for subject to call dispose()
+	There is no interface for subject to emit onNext ,onCompleted, onError event
+	There is one new method accept which works same as onNext and in fact internally it call onNext to make onNext private
+	Question is What is the purpose of PublishRelay if we have Publish Subject and people are raising question as well you can find answer in this link . In addition to this If you are working with existing project and you saw PublishRelay you are 100% sure it will not emit error or completed event so you don't need to cater this.
+
+![alt text](https://miro.medium.com/max/700/1*KIdhD6HxtK5duMx2akwm4A.png)
+
+# Behavior Relay Subject
+	A BehaviorRelay wraps a Behavior Subject.What makes it different from Behavior Subject is that it never terminated means you can’t call completed,error or dispose method on observable subject and you can ask it for its current value without subscribing to receive updates which is very helpful
+
+![alt text](https://miro.medium.com/max/700/1*Zb8-0pnj_fnzZrSIqhTOsA.png)
+
+# Traits
+	Traits are observables with a narrower set of behaviors than regular observables. Their purpose is to provide a way to more clearly convey your intent to readers of your code or consumers of your API
+   # Single → 
+	   A Single is a variation of Observable that, instead of emitting a series of elements, is always guaranteed to emit either a single element or an   	error. (Like Promise)
+		One common use case for using Single is for performing HTTP Requests that could only return a response or an error, but a Single can be used to model any case where you only care for a single element, and not for an infinite stream of elements.
+		Like just Observable it emits only one event to it’s subscriber
+		.success(value) is actually a combination of the .next and .completed events.
+![alt text](https://miro.medium.com/max/700/1*QCWj6aO5g02ZpC0JA8WzSw.png)
+
+# Completable →
+A Completable is a variation of Observable that can only complete or emit an error. It is guaranteed to not emit any elements. A useful use case 
+for Completable would be to model any case where we only care for the fact an operation has completed, but don’t care about a element resulted by that completion.
+Emits zero elements.
+Emits a completion event, or an error.
+
+# Maybe → 
+	is the combination of Completable and Single. Maybe is useful when we want to write that an Observable might not have a value and will just complete. It can either emit a single element, complete without emitting an element, or emit an error.
+	Emits either a completed event, a single element or an error.
+
+# Operators
+	Operators are method that apply to observable sequence and return another immutable observable sequence. Operator can be creating,filtering , transforming and combining operator we previously used some operators as well like just, of , from and so on . It is highly recommended to look http://reactivex.io/documentation/operators, The actual challenge will be how to use these operators in practice
+
+# filter
+	It takes a predicate closure, which it applies to every element emitted, allowing through only those elements which satisfy the predicate
+![alt text](https://miro.medium.com/max/700/1*OHEmPZ_udoxFb27WIz1emA.png)
+
+# skipWhile
+	As shown in Figure 5 it is skipping element until first time predicate return false after that it starts passing through element and will not check condition and as shown it doesn’t skip last element
+
+![alt text](https://miro.medium.com/max/700/1*Uf39FvsTVe74b_T_zIqyQg.png)
+
+# distinctUntilChanged
+	prevents duplicates that are right next to each other
+![alt text](https://miro.medium.com/max/700/1*AfSKqE_yNOXTFa10A-mJtg.png)
+
+ # toArray
+	Convert an observable sequence of elements into an array of those elements once the complete event of observable is called .
+	As shown in Figure nothing is printed on the console since onCompleted is not called yet
+![alt text](https://miro.medium.com/max/700/1*InnbPhuMRUtULLEVVs2j5Q.png)
+	After calling onComplete on the observable it will collect all the sequence element , convert it to array and send it to all the subscriber through next event method on the observable
+![alt text](https://miro.medium.com/max/700/1*KqgOcdIii_XMkxoZ_dHOFA.png)
+
+# map
+	RxSwift map operator works just like Swift’s standard map, except it operates on observables. It except Observable as input (every time the Observable emits a new item) and return transformed Observable sequence
+
+	As shown in Figure 6 we are getting User observable sequence by using map we transformed this observable sequence to UserDTO observable sequence. This is the operator you will be using very frequently
+	Note: It will not depend on the .complete event on the observable, Every time element is added to the sequence it will apply map function and trigger .next event to all the observable
+ ![alt text](https://miro.medium.com/max/700/1*GQZ6icAOUpMj_SVr9WMFqg.png)
+ 
+ # flatMap
+	The FlatMap operator transforms an Observable by applying a function that you specify to each item emitted by the source Observable, where that function returns an Observable that itself emits items. FlatMap then merges the emissions of these resulting Observables, emitting these merged results as its own sequence 😕
+	This method is useful, for example, when you have an Observable that emits a series of items that themselves have Observable members or are in other ways transformable into Observables, so that you can create a new Observable that emits the complete collection of items emitted by the sub-Observables of these items.
+	As shown in Figure 7 we have an Observable User that is emitting series of items user1,user2 and user3 that themselves have Observable members isConnected so flatmap will create three observables that is doing tracking of isConnected property and when this property change it send to all the observer with the value. Flatmap transformed inner observable by watching it’s observable property
+	flatMap is similar to map, but it transforms element of observable to an observable of sequences.
+
+ ![alt text](https://miro.medium.com/max/700/1*pq3M7xZ8sthWNLZM_JuZlg.png)
+
+
+
+
