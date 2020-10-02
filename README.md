@@ -262,5 +262,60 @@ Emits a completion event, or an error.
  ![alt text](https://miro.medium.com/max/700/1*pq3M7xZ8sthWNLZM_JuZlg.png)
 
 
+# share
+	share operator when we need the chain of operators not to re-execute upon every subscription. Thus, everything before share is executed only once 😕
+	As shown in Figure “Creating observable…” is called twice because create method gets executed as many times as we subscribe
+	
+![alt text](https://miro.medium.com/max/700/1*IXfVfZcVlljTCgf7ChM1QA.png)
 
+	As shown in Figure 2 by using share operator now “Creating observable…” is called only one time and the observable is now share between all subscribers As the data emitted . by observable it will send to al observer as usual
+![alt text](https://miro.medium.com/max/700/1*YlusohoCp24o6Jfq7A9XIg.png)
+
+	One point to note if the observable is shared and there is no subscription attached or previous subscription is disposed then chain of operators re-execute for next subscription as shown in Figure 3
+	
+![alt text](https://miro.medium.com/max/700/1*JCaI77mQNBGtlI8eZze2yA.png)
+
+	Following actions are performed
+	Created a shared observable
+	Subscribed first Observer and wait for it’s event, It emit next and completed since complete event dispose the subscription now there is no observer observing
+	After that we tap on button and on its action we again want to subscribe the shared observable since no previous subscription is there it will again re execute the chain of operators
+
+![alt text](https://miro.medium.com/max/700/1*s6LajD05v8fH70NuR-ZyIg.png)
+
+	As shown in Figure 4 there are few things to be note
+	Since second observer subscribed after first subscription get 1,2 and 3 next events so it will not get these. It will get the next event after thhe subscription
+	There is only one “Creating observable…” printed on the console since first subscription didn’t dispose yet and (No complete event called)
+
+ ![alt text](https://miro.medium.com/max/700/1*mCm00elb2-PbOPkklrMA6g.png)
+ 
+	Question is How to get previous next event emitted before the second subscription and the answer to give parameter value to share operator. As shown in Figure 6 second observer subscribed after first subscription still it get 1,2 and 3 next events that were emitted before it subscribed
+ ![alt text](https://miro.medium.com/max/700/1*fCQDG26N39IifAwItrngtA.png)
+ 
+	 One more twist we added .forever as a scope while creating share observable which has the following means
+	First subscription disposed by calling complete event and second observer subscribed after that with .forever it will not re-execute create method and with the replay 3 it will get previous 3 next event that were emitted before it subscribed
+ ![alt text](https://miro.medium.com/max/700/1*YPZvPpRl3mYVf8SwWKrOmA.png)
+ 
+ # Empty
+Returns an empty observable sequence, using the specified scheduler to send out the single `Completed` message.
+As shown in Figure 8 it create an Observable that emits no items and immediate terminates
+
+  ![alt text](https://miro.medium.com/max/700/1*wxjApdp9cU8lN9zlfrWGmQ.png)
+  
+ Custom Operator (Creating Own Operator)
+As shown in Figure 9 we created a BehaviorSubject of type Optional String , If we want only unwrap value there is no operator to unwrap any observable sequence
+
+  ![alt text](https://miro.medium.com/max/700/1*XAwN3kSwOz3hgsElJfskxw.png)
+  
+We can solve this problem by doing two steps first filter nil observable value and then unwrap value of optional
+  ![alt text](https://miro.medium.com/max/700/1*XYy8WTTXo4RT5tUKttvzXA.png)
+  
+As shown in Figure 8 we created Observable Type extension that return not nil values from the observable sequence. This method has following things
+Restricted to Observable having Optional data Type (where E == T?)
+Return Observable of unwrap Observable sequence. It should return Observable sequence because this operator we applying to observable.
+“Operators are method that apply to observable sequence and return another immutable observable sequence.”definition we discussed in part 2
+
+  ![alt text](https://miro.medium.com/max/700/1*9qw_fdHea3NPY9DkIyEAPg.png)
+  
+A shown in Figure 9 we replaced the filter and map operator with only one operator that can be part of Observable method which reduces code duplication, it is maintainable and testable as well
+  ![alt text](https://miro.medium.com/max/700/1*bHg3fjnHmdvMOWfEL1SclQ.png)
 
