@@ -301,21 +301,49 @@ As shown in Figure 8 it create an Observable that emits no items and immediate t
 
   ![alt text](https://miro.medium.com/max/700/1*wxjApdp9cU8lN9zlfrWGmQ.png)
   
- Custom Operator (Creating Own Operator)
-As shown in Figure 9 we created a BehaviorSubject of type Optional String , If we want only unwrap value there is no operator to unwrap any observable sequence
+# Custom Operator (Creating Own Operator)
+	As shown in Figure 9 we created a BehaviorSubject of type Optional String , If we want only unwrap value there is no operator to unwrap any observable sequence
 
   ![alt text](https://miro.medium.com/max/700/1*XAwN3kSwOz3hgsElJfskxw.png)
   
 We can solve this problem by doing two steps first filter nil observable value and then unwrap value of optional
   ![alt text](https://miro.medium.com/max/700/1*XYy8WTTXo4RT5tUKttvzXA.png)
   
-As shown in Figure 8 we created Observable Type extension that return not nil values from the observable sequence. This method has following things
-Restricted to Observable having Optional data Type (where E == T?)
-Return Observable of unwrap Observable sequence. It should return Observable sequence because this operator we applying to observable.
-“Operators are method that apply to observable sequence and return another immutable observable sequence.”definition we discussed in part 2
+	As shown in Figure 8 we created Observable Type extension that return not nil values from the observable sequence. This method has following things
+	Restricted to Observable having Optional data Type (where E == T?)
+	Return Observable of unwrap Observable sequence. It should return Observable sequence because this operator we applying to observable.
+	“Operators are method that apply to observable sequence and return another immutable observable sequence.”definition we discussed in part 2
 
   ![alt text](https://miro.medium.com/max/700/1*9qw_fdHea3NPY9DkIyEAPg.png)
   
-A shown in Figure 9 we replaced the filter and map operator with only one operator that can be part of Observable method which reduces code duplication, it is maintainable and testable as well
+	A shown in Figure 9 we replaced the filter and map operator with only one operator that can be part of Observable method which reduces code duplication, it is maintainable and testable as well
   ![alt text](https://miro.medium.com/max/700/1*bHg3fjnHmdvMOWfEL1SclQ.png)
+  
+ # do
+	Invokes an action for each event in the observable sequence, and propagates all observer messages through the result sequence
+	As shown in Figure 10 we registered callbacks that ReactiveX will call when certain events take place on an Observable by using do operator, where those callbacks will be called independently from the normal set of notifications associated with an Observable cascade. It is used to provide the side effects before sending actual events to its subscriber
+	onNext → Action to invoke for each element in the observable sequence.
+	onError → Action to invoke upon errored termination of the observable sequence.
+	onCompleted → Action to invoke upon graceful termination of the observable sequence.
+	onSubscribe → Action to invoke before subscribing to source observable sequence.
+	onSubscribed → Action to invoke after subscribing to source observable sequence.
+	onDispose → Action to invoke after subscription to source observable has been disposed for any reason. It can be either because sequence terminates for some reason or observer subscription being disposed.
+  ![alt text](https://miro.medium.com/max/700/1*GqSrXcGvN6_-JuhKck69iw.png)
+ # throttle
+	Returns an Observable that emits the first and the latest item emitted by the source Observable during sequential time windows of a specified duration. This operator makes sure that no two elements are emitted in less then dueTime
+	In Figure 11 we are doing following things
+	On every Button press observable emit 2 to the observer
+	Within 10 sec I tapped many times since we define due time to 2sec, throttle operator will bypass these next event until due time reached and when due time reached it will pick the last emitted value and send it to the subscriber
+  ![alt text](https://miro.medium.com/max/700/1*890NC3JLdW__IN9hLyT-ig.png)
+Figure 11
+  ![alt text](https://miro.medium.com/max/700/1*nuKnnJv2dIFwv6MxBPlMhw.png)
+ # debounce
+	Ignores elements from an observable sequence which are followed by another element within a specified relative time duration, using the specified scheduler to run throttling timers 😕
+	In figure 12 I continuously tapped on the button for 12 seconds but nothing is printed on the console because on every click it will emit the next event that will reset the timer .
+   
+	 As shown in Figure 13 after button press I waited for 2 second now it reached the due time and printed the last emitted value. This operator is very helpful if you developing search feature like when user stop filling the text field with some specified time then api hit.
+  ![alt text](https://miro.medium.com/max/700/1*COyBlw2A3_CwC9aCoRttAQ.png)
+  
+	 Throttle → the original function be called at most once per specified period.
+	Debounce → the original function be called after the caller stops calling the decorated function after a specified period.
 
