@@ -15,6 +15,8 @@
 # Observables:
 	Observables is basically a wrapper around some data source and data source typically means a stream of values, since the main purpose of using RxSwift to do async programming easily, data coming from different sources over time will be put in this stream and will send to the observers. OR
 	It allows other objects or consumers to subscribe for asynchronous events, or values, emitted by another object over time and produce a sequence of events that can “carry” an immutable snapshot of events/values
+MY UNDERSTANDING:OBSERVABLES GET DATA ASYNCHRONOUSLY FROM A DATASOURCE AND PUTS IT INTO IMMUTABLE SEQUENCE AND EMITS VALUES OR EVENTS  TO OBSERVERS WHENEVER THERE IS A CHANGE .	
+	
 
 # Observable LifeCycle
 	Observable can emit three types of events
